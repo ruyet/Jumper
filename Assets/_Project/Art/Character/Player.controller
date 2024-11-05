@@ -26,6 +26,32 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!1102 &-7483360249462709874
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Climb rope
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 059605bfb633fc445b1c71816aa5a770, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1102 &-6589677463170793339
 AnimatorState:
   serializedVersion: 6
@@ -52,14 +78,22 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+<<<<<<< HEAD
 --- !u!1102 &-5881604370401058224
+=======
+--- !u!1102 &-4562704405542561566
+>>>>>>> origin/feature-character
 AnimatorState:
   serializedVersion: 6
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
   m_Name: Climb ladder
+=======
+  m_Name: Climb rope
+>>>>>>> origin/feature-character
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -72,7 +106,11 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
+<<<<<<< HEAD
   m_Motion: {fileID: 7400000, guid: 4eb84ffcec1fc9e46a834872bceeefe1, type: 2}
+=======
+  m_Motion: {fileID: 7400000, guid: 059605bfb633fc445b1c71816aa5a770, type: 2}
+>>>>>>> origin/feature-character
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -145,7 +183,15 @@ AnimatorStateMachine:
     m_State: {fileID: 4611669174712970910}
     m_Position: {x: 270, y: 130, z: 0}
   - serializedVersion: 1
+<<<<<<< HEAD
+<<<<<<< HEAD
     m_State: {fileID: -5881604370401058224}
+=======
+    m_State: {fileID: -4562704405542561566}
+>>>>>>> origin/feature-character
+=======
+    m_State: {fileID: -7483360249462709874}
+>>>>>>> origin/feature-character
     m_Position: {x: 305, y: 195, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
