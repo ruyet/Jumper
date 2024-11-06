@@ -3046,6 +3046,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovementSpeed: 3
   JumpForce: 7
+  JumpForceFromClimb: 5
   groundCheck: {fileID: 1525471046}
   groundCheckRadius: 0.1
   groundLayer:
@@ -3073,7 +3074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1349791288635475953, guid: 8709b97cf1ca0304bba17ff93b122e75, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.764
+      value: -7.89
       objectReference: {fileID: 0}
     - target: {fileID: 1349791288635475953, guid: 8709b97cf1ca0304bba17ff93b122e75, type: 3}
       propertyPath: m_LocalPosition.y
