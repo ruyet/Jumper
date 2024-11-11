@@ -38,6 +38,8 @@ public class PlayerMovement : MonoBehaviour
         // Check if player is crouching
         bool isCrouching = Input.GetKey(KeyCode.DownArrow) && inputX == 0;
 
+
+
         // Handle movement if not climbing
         if (!isClimbing)
         {
