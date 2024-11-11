@@ -17,29 +17,48 @@ public class PlayerMovement : MonoBehaviour
 
     // Knockback variables
     private bool isKnockbacked = false;
+    [SerializeField] private float knockbackForceX = 10f; // Increased horizontal knockback force
+    [SerializeField] private float knockbackForceY = 2f; // Reduced vertical knockback force
+    [SerializeField] private float knockbackDuration = 0.5f; // Duration of the knockback effect
+    private float knockbackTimer = 0f;
 
     // Climbing variables
     private bool isClimbing = false;
     private bool isNearLadderOrRope = false;
     private Transform currentClimbObject;
 
+    private bool isCrouching = false; // Define isCrouching as a class-level variable
+
+    private SpriteRenderer _spriteRenderer;
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _rigidbody.gravityScale = 2.0f;  // Adjust gravity to make jumping feel more grounded
         _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
+        // Update knockback timer
+        if (knockbackTimer > 0)
+        {
+            knockbackTimer -= Time.deltaTime;
+        }
+        else
+        {
+            isKnockbacked = false;
+        }
+
         // Get horizontal input
         float inputX = Input.GetAxisRaw("Horizontal");
 
         // Check if player is crouching
-        bool isCrouching = Input.GetKey(KeyCode.DownArrow) && inputX == 0;
+        isCrouching = Input.GetKey(KeyCode.DownArrow) && inputX == 0;
 
-        // Handle movement if not climbing
-        if (!isClimbing)
+        // Handle movement if not climbing and not in knockback state
+        if (!isClimbing && !isKnockbacked)
         {
             // Move the player by setting the Rigidbody's velocity if not crouching
             if (!isCrouching)
@@ -71,7 +90,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Set animation parameters
         _animator.SetBool("IsInAir", !IsGrounded() && !isClimbing);   // Set to true if not grounded
-        _animator.SetBool("IsWalking", inputX != 0 && !isClimbing);    // Set to true if there's horizontal input
+        _animator.SetBool("IsWalking", inputX != 0 && !isClimbing && !isKnockbacked);    // Set to true if there's horizontal input
         _animator.SetBool("IsCrouching", isCrouching);  // Set crouch state
         _animator.SetBool("IsClimbing", isClimbing);  // Set climbing state
         _animator.SetBool("IsKnockback", isKnockbacked);  // Set knockback state
@@ -121,33 +140,35 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator HandleKnockback()
     {
         isKnockbacked = true;
+        knockbackTimer = knockbackDuration;
 
-        // Apply a small force to simulate knockback jump backward
-        _rigidbody.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * 5f, JumpForce * 0.7f);
+        // Apply impulse force to simulate knockback backward with both horizontal and vertical components
+        float knockbackDirection = IsFacingRight ? -1f : 1f; // Knockback pushes opposite to the facing direction
+        Vector2 knockbackForce = new Vector2(knockbackDirection * knockbackForceX, knockbackForceY);
+        _rigidbody.velocity = Vector2.zero; // Reset velocity before applying knockback
+        _rigidbody.AddForce(knockbackForce, ForceMode2D.Impulse);
 
         // Flicker the player's sprite for 2 seconds
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         for (float t = 0; t < 2f; t += 0.1f)
         {
-            spriteRenderer.enabled = !spriteRenderer.enabled;
+            _spriteRenderer.enabled = !_spriteRenderer.enabled;
             yield return new WaitForSeconds(0.1f);
         }
-        spriteRenderer.enabled = true;
-
-        // Allow player to move while in knockback state
-        yield return new WaitForSeconds(3f);
-
-        isKnockbacked = false;
+        _spriteRenderer.enabled = true;
     }
 
     private void FixedUpdate()
     {
         if (isNearLadderOrRope && Input.GetKey(KeyCode.UpArrow))
         {
-            isClimbing = true;
-            _rigidbody.gravityScale = 0;  // Disable gravity while climbing
-            // Snap the player to the center of the ladder or rope when starting to climb
-            transform.position = new Vector3(currentClimbObject.position.x, transform.position.y, transform.position.z);
+            float distanceToCenter = Mathf.Abs(transform.position.x - currentClimbObject.position.x);
+            if (distanceToCenter < 0.1f) // Allow climbing only if close enough to the center
+            {
+                isClimbing = true;
+                _rigidbody.gravityScale = 0;  // Disable gravity while climbing
+                // Snap the player to the center of the ladder or rope when starting to climb
+                transform.position = new Vector3(currentClimbObject.position.x, transform.position.y, transform.position.z);
+            }
         }
 
         if (isClimbing)
