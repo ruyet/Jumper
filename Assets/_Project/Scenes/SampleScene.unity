@@ -16484,6 +16484,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  knockbackForceX: 5
+  knockbackForceY: 2
+  knockbackDuration: 0.5
 --- !u!50 &1835307655
 Rigidbody2D:
   serializedVersion: 4
@@ -20727,11 +20730,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6569133779312595786, guid: 7bcf50e48fca1314d889e8aa89750c6e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.0485528
+      value: -8.56
       objectReference: {fileID: 0}
     - target: {fileID: 6569133779312595786, guid: 7bcf50e48fca1314d889e8aa89750c6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.62
+      value: -1.32
       objectReference: {fileID: 0}
     - target: {fileID: 6569133779312595786, guid: 7bcf50e48fca1314d889e8aa89750c6e, type: 3}
       propertyPath: m_LocalPosition.z
