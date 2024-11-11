@@ -27,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     private bool isNearLadderOrRope = false;
     private Transform currentClimbObject;
 
+    private bool isCrouching = false; // Define isCrouching as a class-level variable
+
     private SpriteRenderer _spriteRenderer;
 
     private void Start()
@@ -53,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
         float inputX = Input.GetAxisRaw("Horizontal");
 
         // Check if player is crouching
-        bool isCrouching = Input.GetKey(KeyCode.DownArrow) && inputX == 0;
+        isCrouching = Input.GetKey(KeyCode.DownArrow) && inputX == 0;
 
         // Handle movement if not climbing and not in knockback state
         if (!isClimbing && !isKnockbacked)
@@ -159,10 +161,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isNearLadderOrRope && Input.GetKey(KeyCode.UpArrow))
         {
-            isClimbing = true;
-            _rigidbody.gravityScale = 0;  // Disable gravity while climbing
-            // Snap the player to the center of the ladder or rope when starting to climb
-            transform.position = new Vector3(currentClimbObject.position.x, transform.position.y, transform.position.z);
+            float distanceToCenter = Mathf.Abs(transform.position.x - currentClimbObject.position.x);
+            if (distanceToCenter < 0.1f) // Allow climbing only if close enough to the center
+            {
+                isClimbing = true;
+                _rigidbody.gravityScale = 0;  // Disable gravity while climbing
+                // Snap the player to the center of the ladder or rope when starting to climb
+                transform.position = new Vector3(currentClimbObject.position.x, transform.position.y, transform.position.z);
+            }
         }
 
         if (isClimbing)
