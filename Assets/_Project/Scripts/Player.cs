@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
     public float MovementSpeed = 5f;   // Horizontal movement speed
     public float JumpForce = 7f;       // Jump force for the player
     public float JumpForceFromClimb = 5f; // Reduced jump force for jumping off a ladder or rope
+    public float MaxFallSpeed = -10f;  // Maximum fall speed to keep the fall feeling natural
     private Rigidbody2D _rigidbody;
     private Animator _animator;
     private bool IsFacingRight = true;
@@ -115,12 +116,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Obstacle"))
+        if (collision.CompareTag("Ladder") || collision.CompareTag("Rope"))
         {
-            StartCoroutine(HandleKnockback());
-        }
-        else if (collision.CompareTag("Ladder") || collision.CompareTag("Rope"))
-        {
+            //Debug.Log("Player collided with Ladder/Rope"); // Debug Log
             isNearLadderOrRope = true;
             currentClimbObject = collision.transform;  // Store reference to the ladder or rope
         }
@@ -130,6 +128,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Ladder") || collision.CompareTag("Rope"))
         {
+            // Debug.Log("Player exited Ladder/Rope area"); // Debug Log
             isNearLadderOrRope = false;
             isClimbing = false;
             _rigidbody.gravityScale = 2.0f; // Restore gravity
@@ -192,6 +191,12 @@ public class PlayerMovement : MonoBehaviour
             // Detach from ladder or rope when reaching the ground
             isClimbing = false;
             _rigidbody.gravityScale = 2.0f;
+        }
+
+        // Handle falling to ensure a controlled fall speed while maintaining natural gravity
+        if (!IsGrounded() && !isClimbing && _rigidbody.velocity.y < 0)
+        {
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, Mathf.Max(_rigidbody.velocity.y, MaxFallSpeed));
         }
     }
 }
