@@ -48,11 +48,11 @@ TagManager:
   - name: Background
     uniqueID: 2851667825
     locked: 0
-  - name: Platforms Background
-    uniqueID: 1509166213
-    locked: 0
   - name: Ladder
     uniqueID: 16006315
+    locked: 0
+  - name: Platforms Background
+    uniqueID: 1509166213
     locked: 0
   - name: Player
     uniqueID: 4156480591
