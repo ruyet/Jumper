@@ -151,20 +151,30 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator HandleKnockback()
     {
+        // Exit climbing mode when knockback starts
+        if (isClimbing)
+        {
+            isClimbing = false;
+            _rigidbody.gravityScale = 2.0f; // Restore gravity
+        }
+
         isKnockbacked = true;
         knockbackTimer = knockbackDuration;
 
-        float knockbackDirection = IsFacingRight ? -1f : 1f;
+        // Apply impulse force to simulate knockback backward with both horizontal and vertical components
+        float knockbackDirection = IsFacingRight ? -1f : 1f; // Knockback pushes opposite to the facing direction
         Vector2 knockbackForce = new Vector2(knockbackDirection * knockbackForceX, knockbackForceY);
-        _rigidbody.velocity = Vector2.zero;
+        _rigidbody.velocity = Vector2.zero; // Reset velocity before applying knockback
         _rigidbody.AddForce(knockbackForce, ForceMode2D.Impulse);
 
+        // Flicker the player's sprite for 2 seconds (independent of climbing state)
         for (float t = 0; t < 2f; t += 0.1f)
         {
             _spriteRenderer.enabled = !_spriteRenderer.enabled;
             yield return new WaitForSeconds(0.1f);
         }
         _spriteRenderer.enabled = true;
+        isKnockbacked = false; // Reset knockback state after flickering
     }
 
     private void FixedUpdate()
