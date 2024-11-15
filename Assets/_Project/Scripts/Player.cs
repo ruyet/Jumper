@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Video;
 using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
@@ -10,6 +11,9 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D _rigidbody;
     private Animator _animator;
     private bool IsFacingRight = true;
+    AudioSource jumpSound;
+
+    public VideoPlayer videoPlayer; // Reference to the VideoPlayer component
 
     // Ground check variables
     [SerializeField] private Transform groundCheck;    // Reference to an empty GameObject at player's feet
@@ -28,7 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isNearLadderOrRope = false;
     private Transform currentClimbObject;
 
-    private bool isCrouching = false; // Define isCrouching as a class-level variable
+    private bool isCrouching = false;
 
     private SpriteRenderer _spriteRenderer;
 
@@ -38,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
         _rigidbody.gravityScale = 2.0f;  // Adjust gravity to make jumping feel more grounded
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        jumpSound = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -61,24 +66,21 @@ public class PlayerMovement : MonoBehaviour
         // Handle movement if not climbing and not in knockback state
         if (!isClimbing && !isKnockbacked)
         {
-            // Move the player by setting the Rigidbody's velocity if not crouching
             if (!isCrouching)
             {
                 _rigidbody.velocity = new Vector2(inputX * MovementSpeed, _rigidbody.velocity.y);
             }
             else
             {
-                // Stop horizontal movement while crouching
                 _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
             }
 
-            // Jump if the player is grounded and the jump button (space or alt) is pressed
             if ((Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt)) && IsGrounded() && !isCrouching)
             {
                 _rigidbody.AddForce(new Vector2(0, JumpForce), ForceMode2D.Impulse);
+                jumpSound.Play();
             }
 
-            // Check and flip the direction of the player based on input
             if (inputX > 0 && !IsFacingRight)
             {
                 Flip();
@@ -90,25 +92,21 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Set animation parameters
-        _animator.SetBool("IsInAir", !IsGrounded() && !isClimbing);   // Set to true if not grounded
-        _animator.SetBool("IsWalking", inputX != 0 && !isClimbing && !isKnockbacked);    // Set to true if there's horizontal input
-        _animator.SetBool("IsCrouching", isCrouching);  // Set crouch state
-        _animator.SetBool("IsClimbing", isClimbing);  // Set climbing state
-        _animator.SetBool("IsKnockback", isKnockbacked);  // Set knockback state
+        _animator.SetBool("IsInAir", !IsGrounded() && !isClimbing);
+        _animator.SetBool("IsWalking", inputX != 0 && !isClimbing && !isKnockbacked);
+        _animator.SetBool("IsCrouching", isCrouching);
+        _animator.SetBool("IsClimbing", isClimbing);
+        _animator.SetBool("IsKnockback", isKnockbacked);
     }
 
     private bool IsGrounded()
     {
-        // Check if the player is on the ground using OverlapCircle
         return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     private void Flip()
     {
-        // Flip the direction of the player
         IsFacingRight = !IsFacingRight;
-
-        // Scale the player in the x-axis to turn it around
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
@@ -118,9 +116,25 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Ladder") || collision.CompareTag("Rope"))
         {
-            //Debug.Log("Player collided with Ladder/Rope"); // Debug Log
             isNearLadderOrRope = true;
-            currentClimbObject = collision.transform;  // Store reference to the ladder or rope
+            currentClimbObject = collision.transform;
+        }
+
+        if (collision.CompareTag("Win"))
+        {
+            PlayWinVideo();
+        }
+    }
+
+    private void PlayWinVideo()
+    {
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play(); // Play the video
+        }
+        else
+        {
+            Debug.LogWarning("VideoPlayer not assigned!");
         }
     }
 
@@ -128,11 +142,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Ladder") || collision.CompareTag("Rope"))
         {
-            // Debug.Log("Player exited Ladder/Rope area"); // Debug Log
             isNearLadderOrRope = false;
             isClimbing = false;
-            _rigidbody.gravityScale = 2.0f; // Restore gravity
-            currentClimbObject = null;  // Clear reference to the ladder or rope
+            _rigidbody.gravityScale = 2.0f;
+            currentClimbObject = null;
         }
     }
 
@@ -141,13 +154,11 @@ public class PlayerMovement : MonoBehaviour
         isKnockbacked = true;
         knockbackTimer = knockbackDuration;
 
-        // Apply impulse force to simulate knockback backward with both horizontal and vertical components
-        float knockbackDirection = IsFacingRight ? -1f : 1f; // Knockback pushes opposite to the facing direction
+        float knockbackDirection = IsFacingRight ? -1f : 1f;
         Vector2 knockbackForce = new Vector2(knockbackDirection * knockbackForceX, knockbackForceY);
-        _rigidbody.velocity = Vector2.zero; // Reset velocity before applying knockback
+        _rigidbody.velocity = Vector2.zero;
         _rigidbody.AddForce(knockbackForce, ForceMode2D.Impulse);
 
-        // Flicker the player's sprite for 2 seconds
         for (float t = 0; t < 2f; t += 0.1f)
         {
             _spriteRenderer.enabled = !_spriteRenderer.enabled;
@@ -161,22 +172,19 @@ public class PlayerMovement : MonoBehaviour
         if (isNearLadderOrRope && Input.GetKey(KeyCode.UpArrow))
         {
             float distanceToCenter = Mathf.Abs(transform.position.x - currentClimbObject.position.x);
-            if (distanceToCenter < 0.1f) // Allow climbing only if close enough to the center
+            if (distanceToCenter < 0.1f)
             {
                 isClimbing = true;
-                _rigidbody.gravityScale = 0;  // Disable gravity while climbing
-                // Snap the player to the center of the ladder or rope when starting to climb
+                _rigidbody.gravityScale = 0;
                 transform.position = new Vector3(currentClimbObject.position.x, transform.position.y, transform.position.z);
             }
         }
 
         if (isClimbing)
         {
-            // Get vertical input for climbing
             float inputY = Input.GetAxisRaw("Vertical");
             _rigidbody.velocity = new Vector2(0, inputY * MovementSpeed);
 
-            // Allow player to jump off the rope or ladder by holding left or right while pressing alt
             if ((Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
             {
                 isClimbing = false;
@@ -188,12 +196,10 @@ public class PlayerMovement : MonoBehaviour
 
         if (isClimbing && IsGrounded() && Input.GetKey(KeyCode.DownArrow))
         {
-            // Detach from ladder or rope when reaching the ground
             isClimbing = false;
             _rigidbody.gravityScale = 2.0f;
         }
 
-        // Handle falling to ensure a controlled fall speed while maintaining natural gravity
         if (!IsGrounded() && !isClimbing && _rigidbody.velocity.y < 0)
         {
             _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, Mathf.Max(_rigidbody.velocity.y, MaxFallSpeed));

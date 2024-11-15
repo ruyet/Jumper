@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - Rope
   - Ladder
+  - Win
   layers:
   - Default
   - TransparentFX
